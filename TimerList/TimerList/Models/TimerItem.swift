@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct Timer: Identifiable, CustomStringConvertible {
+struct TimerItem: Identifiable, CustomStringConvertible, Equatable, Codable {
     var id = UUID()
     var sec: Int   // seconds of timer [s]
     var secLeft: Int    // seconds left [s]
-    var isActive: Bool = false      // whether timer is running
+    // var isActive: Bool = false      // whether timer is running
     var isAlarmOn: Bool = false     // whether alarm rings when the timer ends
     
     var min: Int {
@@ -24,7 +24,7 @@ struct Timer: Identifiable, CustomStringConvertible {
     
     var description: String {
         // Printed text
-        return String(format: "%02dh %02dm %02ds", hour, min, secLeft % 60)
+        return String(format: "%02d:%02d:%02d", hour, min, secLeft % 60)
     }
     
     
@@ -32,8 +32,11 @@ struct Timer: Identifiable, CustomStringConvertible {
     init(sec: Int, isActive: Bool = false, isAlarmOn: Bool = true) {
         self.sec = sec
         self.secLeft = sec
-        self.isActive = isActive
         self.isAlarmOn = isAlarmOn
     }
     
+    // Equatable
+    static func ==(lhs: TimerItem, rhs: TimerItem) -> Bool {
+        return lhs.id == rhs.id
+    }
 }

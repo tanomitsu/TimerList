@@ -8,42 +8,52 @@
 import SwiftUI
 
 struct TimerItemView: View {
-    var timerItem: Timer
-    var color: Color
-    
+    @Binding var timerItem: TimerItem
+    @EnvironmentObject var model: TimerListModel
+    @State var isShow: Bool = false
+    @State var openingWhell: Int = 1
     var body: some View {
         HStack {
-            Spacer()
             
-            Circle()
-                .frame(width: 20.0, height: 20.0)
-                .foregroundColor(color)
+            // cursor
+            Button(action: {
+                model.setCursor(to: &timerItem)
+            }){
+                let cursorName = (model.activeIndex != nil && model.timerList[model.activeIndex!] == timerItem) ? "arrow.forward.circle.fill" : "circle"
+                Image(systemName: cursorName)
+                    .resizable()
+                    .frame(width: 25.0, height: 25.0)
+                    .padding(.leading, 10)
+            }
             
-            Spacer()
-            
-            Text(timerItem.description)
-                .font(.title)
-            
-            Spacer()
-            
+            // time left
+            Button(action: {
+                isShow = true
+            }){
+                Text(timerItem.description)
+                    .font(.title)
+                    .bold()
+                    .padding()
+                    .frame(width: 200)
+                
+            }
+            .sheet(isPresented: $isShow) {
+                TimerSetView(isPresented: $isShow, timerItem: $timerItem)
+            }
             // bell symbol
-            let imageName = timerItem.isAlarmOn ? "bell.fill" : "bell"
-            Image(systemName: imageName)
-                .resizable()
-                .frame(width: 20.0, height: 20.0)
+            Button(action: {
+                self.timerItem.isAlarmOn.toggle()
+            }){
+                let imageName = timerItem.isAlarmOn ? "bell.fill" : "bell.slash.fill"
+                Image(systemName: imageName)
+                    .resizable()
+                    .frame(width: 30.0, height: 30.0)
+                    .padding(.trailing, 10)
+            }
             
-            Spacer()
-        }.background(Color("timerItemBackground"))
-    }
-    
-    init(item: Timer) {
-        timerItem = item
-        color = timerItem.isActive ? Color(.red) : Color(.gray)
-    }
-}
-
-struct TimerItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        TimerItemView(item: Timer(sec: 100, isActive: true))
+        }
+        .background(Color("timerItemBackground"))
+        .cornerRadius(10.0)
+        .foregroundColor(Color("LetterColor"))
     }
 }
