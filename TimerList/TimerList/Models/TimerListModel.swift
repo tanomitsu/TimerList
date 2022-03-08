@@ -57,7 +57,13 @@ class TimerListModel: ObservableObject {
             // replenish the sec
             timerList[activeIndex].secLeft = timerList[activeIndex].sec
             
-            // 
+            // move to the next timer
+            self.incrementIndex()
+            
+            // start the next timer
+            if self.timerList[activeIndex].isMoveOn {
+                self.startTimer()
+            }
         }
     }
     
@@ -65,7 +71,27 @@ class TimerListModel: ObservableObject {
         guard let activeIndex = activeIndex else {
             return false
         }
-        return timerList[activeIndex].secLeft >= 0
+        return timerList[activeIndex].secLeft > 0
     }
     
+    func addTimer() {
+        self.timerList.append(TimerItem(sec: 1))
+        if timerList.count == 1 {
+            self.activeIndex = 0
+        }
+    }
+    
+    func deleteTimer(element: TimerItem) {
+        guard let index = self.findIndex(element: element) else { return }
+        if let activeIndex = self.activeIndex, index == activeIndex {
+            if self.timerList.count == 1 {
+                self.activeIndex = nil
+            } else if self.timerList.count - 1 == activeIndex {
+                self.activeIndex! -= 1;
+            } else {
+                // do nothing
+            }
+        }
+        self.timerList.remove(at: index)
+    }
 }

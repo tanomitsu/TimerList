@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TimerItemView: View {
     @Binding var timerItem: TimerItem
-    @EnvironmentObject var model: TimerListModel
+    @ObservedObject var model: TimerListModel
     @State var isShow: Bool = false
     @State var openingWhell: Int = 1
     var body: some View {
@@ -38,13 +38,24 @@ struct TimerItemView: View {
                 
             }
             .sheet(isPresented: $isShow) {
-                TimerSetView(isPresented: $isShow, timerItem: $timerItem)
+                TimerSetView(isPresented: $isShow, timerItem: $timerItem, model: model)
             }
             // bell symbol
             Button(action: {
                 self.timerItem.isAlarmOn.toggle()
             }){
                 let imageName = timerItem.isAlarmOn ? "bell.fill" : "bell.slash.fill"
+                Image(systemName: imageName)
+                    .resizable()
+                    .frame(width: 30.0, height: 30.0)
+                    .padding(.trailing, 10)
+            }
+            
+            // MoveOn symbol
+            Button(action: {
+                self.timerItem.isMoveOn.toggle()
+            }){
+                let imageName = timerItem.isMoveOn ? "arrow.down.circle" : "arrow.down.to.line.circle.fill"
                 Image(systemName: imageName)
                     .resizable()
                     .frame(width: 30.0, height: 30.0)

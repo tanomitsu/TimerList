@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TimerSetView: View {
-    @EnvironmentObject var model: TimerListModel
+    @ObservedObject var model: TimerListModel
     @Binding var isPresented: Bool
     @Binding var timerItem: TimerItem
     @State var hour: Int = 0
@@ -121,7 +121,8 @@ struct TimerSetView: View {
         }
     }
     
-    init(isPresented: Binding<Bool>, timerItem: Binding<TimerItem>) {
+    init(isPresented: Binding<Bool>, timerItem: Binding<TimerItem>, model: TimerListModel) {
+        self.model = model
         self._isPresented = isPresented
         self._timerItem = timerItem
         let hour_init = (self.timerItem.sec / 3600) % 60

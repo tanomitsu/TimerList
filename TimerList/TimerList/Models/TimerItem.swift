@@ -12,7 +12,9 @@ struct TimerItem: Identifiable, CustomStringConvertible, Equatable, Codable {
     var sec: Int   // seconds of timer [s]
     var secLeft: Int    // seconds left [s]
     // var isActive: Bool = false      // whether timer is running
-    var isAlarmOn: Bool = false     // whether alarm rings when the timer ends
+    var isAlarmOn: Bool = false     // whether alarm ringing screen shows
+    
+    var isMoveOn: Bool = false
     
     var min: Int {
         (secLeft / 60) % 60

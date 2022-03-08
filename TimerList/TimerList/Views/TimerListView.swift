@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TimerListView: View {
-    @EnvironmentObject var model: TimerListModel
+    @ObservedObject var model: TimerListModel = TimerListModel()
     var body: some View {
         ZStack {
             Color("Background")
@@ -30,8 +30,18 @@ struct TimerListView: View {
                             
                         }
                         
+                        Button("削除") {
+                            guard let activeIndex = model.activeIndex else { return }
+                            model.deleteTimer(element: model.timerList[activeIndex])
+                        }
+                        
                         Button("バグ報告") {
                             
+                        }
+                        
+                        Button("全削除") {
+                            model.activeIndex = nil
+                            self.model.timerList.removeAll()
                         }
                     } label: {
                         Image(systemName: "ellipsis")
@@ -50,8 +60,18 @@ struct TimerListView: View {
                 // タイマーの一覧の表示
                 ScrollView {
                     VStack {
-                        ForEach(model.timerList.indices) { i in
-                            TimerItemView(timerItem: $model.timerList[i])
+                        ForEach(model.timerList.indices, id: \.self) { i in
+                            TimerItemView(timerItem: $model.timerList[i], model: model)
+                        }
+                        
+                        // "Add timer" button
+                        Button(action: {
+                            model.addTimer()
+                        }) {
+                            HStack {
+                                Image(systemName: "plus")
+                                Text("新規タイマー")
+                            }
                         }
                     }
                 }
@@ -88,21 +108,27 @@ struct TimerListView: View {
             }
         }
         .onAppear {
+            // UserDefaults.standard.removeAll()
             let jsonDecoder = JSONDecoder()
             jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
             guard let timerListData = UserDefaults.standard.data(forKey: "timerList"),
                   let timerList = try? jsonDecoder.decode([TimerItem].self, from: timerListData) else { return }
             let activeIndex = UserDefaults.standard.integer(forKey: "activeIndex")
             
+            
             model.timerList = timerList
-            model.activeIndex = activeIndex
+            if activeIndex >= 0 {
+                model.activeIndex = activeIndex
+            } else {
+                model.activeIndex = nil
+            }
         }
         .onDisappear {
             let jsonEncoder = JSONEncoder()
             jsonEncoder.keyEncodingStrategy = .convertToSnakeCase
             guard let timerListData = try? jsonEncoder.encode(model.timerList) else { return }
             UserDefaults.standard.set(timerListData, forKey: "timerList")
-            UserDefaults.standard.set(model.activeIndex, forKey: "activeIndex")
+            UserDefaults.standard.set(model.activeIndex ?? -1, forKey: "activeIndex")
         }
     }
 }
@@ -110,5 +136,12 @@ struct TimerListView: View {
 struct TimerListView_Previews: PreviewProvider {
     static var previews: some View {
         TimerListView()
+    }
+}
+
+extension UserDefaults {
+
+    func removeAll() {
+        dictionaryRepresentation().forEach{ removeObject(forKey: $0.key) }
     }
 }
