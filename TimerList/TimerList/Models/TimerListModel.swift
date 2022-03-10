@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AVFoundation
 
 class TimerListModel: ObservableObject {
     @Published var timerList = [TimerItem(sec: 100, isActive: true), TimerItem(sec: 400, isAlarmOn: true)]
@@ -54,8 +55,14 @@ class TimerListModel: ObservableObject {
         if !self.checkSecLeft() {
             stopTimer()
             
+            
             // replenish the sec
             timerList[activeIndex].secLeft = timerList[activeIndex].sec
+            
+            // play the alarm sound
+            if timerList[activeIndex].isAlarmOn {
+                AudioServicesPlaySystemSound(1005)
+            }
             
             // move to the next timer
             self.incrementIndex()
